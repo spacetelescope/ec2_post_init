@@ -117,14 +117,14 @@ case "$(basename $sys_manager_cmd)" in
         sys_manager_cmd_install="dnf -y install"
         sys_manager_cmd_update="dnf -y update"
         sys_manager_cmd_clean="dnf clean all"
-        sys_manager_cmd_list="dnf -q list"
+        sys_manager_cmd_list="rpm -qa"
         ;;
     yum)
         HAVE_YUM=1
         sys_manager_cmd_install="yum -y install"
         sys_manager_cmd_update="yum -y update"
         sys_manager_cmd_clean="yum clean all"
-        sys_manager_cmd_list="yum -q list"
+        sys_manager_cmd_list="rpm -qa"
         ;;
     apt)
         HAVE_APT=1
