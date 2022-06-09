@@ -11,8 +11,6 @@ oneTimeSetUp() {
     export USER="root"
 }
 
-(( $not_root )) && startSkipping
-
 # this test is a no-op
 test_sys_user_push() {
     (( $not_root )) && return
@@ -48,12 +46,17 @@ test_sys_pkg_install() {
 
 test_sys_pkg_clean() {
     (( $not_root )) && return
-    sys_pkg_clean
+    sys_pkg_clean 1>/dev/null
     retval=$?
     assertTrue "Failed to clean up system packages" '[ $retval -eq 0 ]'
 }
 
-(( $not_root )) && endSkipping
+test_sys_pkg_update_all() {
+    (( $not_root )) && return
+    sys_pkg_update_all 1>/dev/null
+    retval=$?
+    assertTrue "failed to update system packages" '[ $retval -eq 0 ]'
+}
 
 test_sys_pkg_get_manager() {
     assertTrue "" '[[ -n $(sys_pkg_get_manager) ]]'

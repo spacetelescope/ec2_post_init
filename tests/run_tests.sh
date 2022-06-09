@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if ! type -p git; then
+    echo "Missing package: git"
+    exit 1
+fi
+
 export shunit_path="$(pwd)/shunit"
 [ ! -d "$shunit_path" ] && git clone https://github.com/kward/shunit2 "$shunit_path"
 
