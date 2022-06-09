@@ -1,19 +1,38 @@
 #!/usr/bin/env bash
 
+if ! type -p git; then
+    echo "Missing package: git"
+    exit 1
+fi
+
 export shunit_path="$(pwd)/shunit"
 [ ! -d "$shunit_path" ] && git clone https://github.com/kward/shunit2 "$shunit_path"
 
 argv=($@)
 argc=$#
+scripts=()
+failures=0
 
 if (( $argc > 0 )); then
     for (( i=0; i < $argc; i++ )); do
-        [ -f "${argv[i]}" ] && [[ "${argv[i]}" =~ ^test_.*\.sh ]] && bash "${argv[i]}"
+        if [ -f "${argv[i]}" ] && [[ "${argv[i]}" =~ ^test_.*\.sh ]]; then
+            scripts+=("${argv[i]}")
+        fi
     done
 else
-    for test_script in test_*.sh; do
-        echo "Running tests for: ${test_script}"
-        bash "${test_script}"
-        echo
+    for f in test_*.sh; do
+        scripts+=("$f")
     done
+fi
+
+for f in "${scripts[@]}"; do
+    echo "Running tests for: ${f}"
+    if ! bash "$f"; then
+        (( failures++ ))
+    fi
+done
+
+if (( $failures )); then
+    echo "Failure(s): $failures" >&2
+    exit 1
 fi

@@ -114,7 +114,6 @@ ac_releases_data_analysis_environ() {
 ac_releases_jwst() {
     local series="$1"
     local pipeline="jwstdp"
-    set -x
     if [ -z "$series" ]; then
         # get implicit latest in the release series
         release=$(find "$(ac_releases_pipeline_exists $pipeline)" \
