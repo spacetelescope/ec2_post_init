@@ -63,7 +63,7 @@ test_sys_pkg_get_manager() {
 }
 
 test_sys_user_home() {
-    assertTrue "" '[[ $(sys_user_home root) == "/root" ]]'
+    assertTrue "" '[[ -d $(sys_user_home root) ]]'
 }
 
 test_sys_arch() {
