@@ -14,7 +14,7 @@ test_ac_platform() {
 }
 
 test_ac_releases_clone() {
-    ac_releases_clone
+    ac_releases_clone 1>/dev/null
     assertTrue '[ -d $ac_releases_path ]'
 }
 

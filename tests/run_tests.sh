@@ -20,15 +20,14 @@ if (( $argc > 0 )); then
         fi
     done
 else
-    for test_script in test_*.sh; do
-        echo "Running tests for: ${test_script}"
-        scripts+=("${argv[i]}")
-        echo
+    for f in test_*.sh; do
+        scripts+=("$f")
     done
 fi
 
-for test_script in "${scripts[@]}"; do
-    if bash "$test_script"; then
+for f in "${scripts[@]}"; do
+    echo "Running tests for: ${f}"
+    if ! bash "$f"; then
         (( failures++ ))
     fi
 done
