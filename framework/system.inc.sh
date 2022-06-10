@@ -62,7 +62,13 @@ sys_arch() {
 ## @retval home directory path
 sys_user_home() {
     local user="${1:-$USER}"
-    getent passwd $user | awk -F: '{ print $6}'
+    
+    # short circuit - if the user is the one we're logged in as, return its home variable
+    if [[ $(id -n -u) == "$user" ]];
+        echo "$HOME"
+        return
+    fi
+    getent passwd $user | awk -F: '{ print $6 }'
 }
 
 ## @fn sys_reset_home_ownership()
