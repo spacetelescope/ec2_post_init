@@ -10,15 +10,30 @@ export shunit_path="$(pwd)/shunit"
 
 argv=($@)
 argc=$#
+scripts=()
+failures=0
 
 if (( $argc > 0 )); then
     for (( i=0; i < $argc; i++ )); do
-        [ -f "${argv[i]}" ] && [[ "${argv[i]}" =~ ^test_.*\.sh ]] && bash "${argv[i]}"
+        if [ -f "${argv[i]}" ] && [[ "${argv[i]}" =~ ^test_.*\.sh ]]; then
+            scripts+=("${argv[i]}")
+        fi
     done
 else
     for test_script in test_*.sh; do
         echo "Running tests for: ${test_script}"
-        bash "${test_script}"
+        scripts+=("${argv[i]}")
         echo
     done
+fi
+
+for test_script in "${scripts[@]}"; do
+    if bash "$test_script"; then
+        (( failures++ ))
+    fi
+done
+
+if (( $failures )); then
+    echo "Failure(s): $failures" >&2
+    exit 1
 fi
