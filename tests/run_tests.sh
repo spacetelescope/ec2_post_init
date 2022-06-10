@@ -33,6 +33,6 @@ for f in "${scripts[@]}"; do
 done
 
 if (( $failures )); then
-    echo "Failure(s): $failures" >&2
+    echo "Test suite(s) failed: $failures" >&2
     exit 1
 fi
