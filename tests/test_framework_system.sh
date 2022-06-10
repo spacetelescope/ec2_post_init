@@ -15,14 +15,14 @@ oneTimeSetUp() {
 test_sys_user_push() {
     (( $not_root )) && return
     sys_user_push "$USER" 1>/dev/null
-    assertTrue "$HOME == $HOME_ORIG" '[[ $HOME == "$HOME_ORIG" ]]'
+    assertTrue "$HOME != $HOME_ORIG" '[[ $HOME != "$HOME_ORIG" ]]'
 }
 
 # this test is a no-op
 test_sys_user_pop() {
     (( $not_root )) && return
     sys_user_pop 1>/dev/null
-    assertTrue "$HOME == $HOME_ORIG" '[[ $HOME == "$HOME_ORIG" ]]'
+    assertTrue "$HOME != $HOME_ORIG" '[[ $HOME != "$HOME_ORIG" ]]'
 }
 
 test_sys_reset_home_ownership() {
@@ -63,7 +63,7 @@ test_sys_pkg_get_manager() {
 }
 
 test_sys_user_home() {
-    assertTrue "" '[[ $(sys_user_home root) == "/root" ]]'
+    assertTrue "" '[[ -d $(sys_user_home root) ]]'
 }
 
 test_sys_arch() {
