@@ -1,11 +1,27 @@
+## @file
+## @brief System functions
+
 (( $EC2PINIT_SYSTEM_INCLUDED )) && return
 EC2PINIT_SYSTEM_INCLUDED=1
 source $ec2pinit_root/ec2pinit.inc.sh
 
-# System functions
 _sys_user_old=''
 _sys_user_home_old=''
 
+## System uses DNF package manager
+export HAVE_DNF=0
+
+## System uses YUM package manager
+export HAVE_YUM=0
+
+## System uses APT package manager
+export HAVE_APT=0
+
+## System is based on Red Hat
+export HAVE_REDHAT=0
+
+## System is based on Debian
+export HAVE_DEBIAN=0
 
 ## @fn sys_user_push()
 ## @brief Lazily "become" another user
@@ -19,7 +35,7 @@ sys_user_push() {
     local current="$(id -n -u)"
     _sys_user_home_old=$(sys_user_home $current)
     _sys_user_old=$current
-    export HOME=$(sys_user_home $name)
+    HOME=$(sys_user_home $name)
     export USER=$name
     pushd $HOME
 }
@@ -27,7 +43,7 @@ sys_user_push() {
 ## @fn sys_user_pop()
 ## @brief Restore caller environment after sys_user_push()
 sys_user_pop() {
-    export HOME="$_sys_user_home_old"
+    HOME="$_sys_user_home_old"
     export USER="$_sys_user_old"
     export _sys_user_home_old=''
     export _sys_user_old=''
@@ -35,6 +51,7 @@ sys_user_pop() {
 }
 
 ## @fn sys_platform()
+## @brief Get system platform (``Linux``, ``Darwin``, etc)
 ## @retval platform string
 sys_platform() {
     local result=$(uname -s)
@@ -47,6 +64,7 @@ sys_platform() {
 }
 
 ## @fn sys_arch()
+## @brief Get system architecture (``i386``, ``x86_64``, etc)
 ## @retval architecture string
 sys_arch() {
     local result=$(uname -m)
@@ -58,6 +76,9 @@ sys_arch() {
 }
 
 ## @fn sys_user_home()
+## @brief Get account home directory
+## @details This function returns the home directory defined in /etc/passwd unless 
+## ``name`` is the caller's account; in which case it will use the value of ``$HOME``. 
 ## @param user account to inspect
 ## @retval home directory path
 sys_user_home() {
@@ -72,7 +93,7 @@ sys_user_home() {
 }
 
 ## @fn sys_reset_home_ownership()
-## @brief Resets ownership of a user (after sys_user_[push/pop]())
+## @brief Resets ownership of a user (after ``sys_user_push()``/``sys_user_pop()``)
 ## @param user account to modify
 sys_reset_home_ownership() {
     local home
@@ -94,7 +115,9 @@ sys_reset_home_ownership() {
     chown -R "${user}": "${home}"
 }
 
-
+## @fn sys_pkg_get_manager()
+## @brief Get the system package manager
+## @retval result the path to the package manager
 sys_pkg_get_manager() {
     local managers=(
         "dnf"
@@ -120,6 +143,7 @@ sys_manager_cmd=$(sys_pkg_get_manager)
 case "$(basename $sys_manager_cmd)" in
     dnf)
         HAVE_DNF=1
+        HAVE_REDHAT=1
         sys_manager_cmd_install="dnf -y install"
         sys_manager_cmd_update="dnf -y update"
         sys_manager_cmd_clean="dnf clean all"
@@ -127,6 +151,7 @@ case "$(basename $sys_manager_cmd)" in
         ;;
     yum)
         HAVE_YUM=1
+        HAVE_REDHAT=1
         sys_manager_cmd_install="yum -y install"
         sys_manager_cmd_update="yum -y update"
         sys_manager_cmd_clean="yum clean all"
@@ -134,6 +159,7 @@ case "$(basename $sys_manager_cmd)" in
         ;;
     apt)
         HAVE_APT=1
+        HAVE_DEBIAN=1
         DEBIAN_FRONTEND=noninteractive
         sys_manager_cmd_install="apt -y install"
         sys_manager_cmd_update="apt -y update && apt -y upgrade"
@@ -142,6 +168,11 @@ case "$(basename $sys_manager_cmd)" in
         ;;
 esac
 
+
+## @fn sys_pkg_install()
+## @brief Install a system package
+## @param ... a variable length list of packages to install
+## @retval exit_code of system package manager
 sys_pkg_install() {
     if (( "$#" < 1 )); then
         echo "sys_pkg_install: at least one package name is required" >&2
@@ -151,10 +182,18 @@ sys_pkg_install() {
     $sys_manager_cmd_install $@
 }
 
+## @fn sys_pkg_update_all()
+## @brief Update all system packages
+## @retval exit_code of system package manager
 sys_pkg_update_all() {
     $sys_manager_cmd_update
 }
 
+## @fn sys_pkg_installed()
+## @brief Test if a system package is installed
+## @param name of a system package
+## @retval false if package is NOT installed
+## @retval true if package is installed
 sys_pkg_installed() {
     local output=''
     local name="$1"
@@ -181,6 +220,8 @@ sys_pkg_installed() {
     return
 }
 
+## @fn sys_pkg_clean()
+## @brief Clean the system package manager's cache(s)
 sys_pkg_clean() {
     $sys_manager_cmd_clean
 }

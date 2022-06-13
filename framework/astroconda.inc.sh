@@ -1,8 +1,9 @@
+## @file
+## @brief Astroconda control functions
+
 (( $EC2PINIT_ASTROCONDA_INCLUDED )) && return
 EC2PINIT_ASTROCONDA_INCLUDED=1
 source $ec2pinit_root/config.sh
-
-# Astroconda control functions
 
 ## @fn ac_platform()
 ## @brief Get astroconda platform string
@@ -47,6 +48,7 @@ ac_releases_pipeline_exists() {
     find $ac_releases_path -maxdepth 1 -type d -name ''$pattern''
 }
 
+
 ## @fn ac_releases_pipeline_release_exists()
 ## @brief Check if a named release exists in a astroconda-releases pipeline
 ## @param pipeline_name Pipeline name
@@ -62,12 +64,12 @@ ac_releases_pipeline_release_exists() {
     fi
 }
 
+
 ## @fn ac_releases_data_analysis()
 ## @brief Get path to data analysis release file
 ## @param series Pipeline release name
 ## @retval latest_path if series is undefined
 ## @retval path if series is found
-
 ac_releases_data_analysis() {
     local series="$1"
     local pipeline="de"
@@ -180,6 +182,7 @@ ac_releases_hst() {
     fi
 }
 
+
 ## @fn ac_releases_hst_environ()
 ## @brief Generate conda environment name
 ## @param series Pipeline release name
@@ -194,9 +197,6 @@ ac_releases_hst_environ() {
     fi
     sed "s/_$(ac_platform).*//" <<< $(basename $filename)
 }
-
-
-# Installation functions
 
 
 ## @fn ac_releases_install_hst()

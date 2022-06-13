@@ -1,8 +1,9 @@
+## @file
+## @brief Miniconda control functions
+
 (( $EC2PINIT_MINICONDA_INCLUDED )) && return
 EC2PINIT_MINICONDA_INCLUDED=1
 source $ec2pinit_root/ec2pinit.inc.sh
-
-# Miniconda control functions
 
 ## @fn mc_get()
 ## @brief Download Miniconda3
