@@ -28,7 +28,7 @@ export HAVE_DEBIAN=0
 ## @details This sidesteps sudo's environment limitations allowing
 ## one to execute scripts on behalf of the named user. Anything modified
 ## while sys_user_push() is active will need to have its ownership and/or
-## octal permissions normalized.
+## octal permissions normalized. If ``name`` does not exist it will be created.
 ## @param name the user to become
 sys_user_push() {
     local name="$1"
@@ -36,8 +36,12 @@ sys_user_push() {
     _sys_user_home_old=$(sys_user_home $current)
     _sys_user_old=$current
     HOME=$(sys_user_home $name)
+    if [ -z "$HOME" ]; then
+        useradd -m -s /bin/bash "$name"
+        HOME=/home/"$name"
+    fi
     export USER=$name
-    pushd $HOME
+    pushd "$HOME"
 }
 
 ## @fn sys_user_pop()
@@ -162,7 +166,7 @@ case "$(basename $sys_manager_cmd)" in
         HAVE_DEBIAN=1
         DEBIAN_FRONTEND=noninteractive
         sys_manager_cmd_install="apt -y install"
-        sys_manager_cmd_update="apt update && apt -y upgrade"
+	sys_manager_cmd_update="apt update && apt -y upgrade"
         sys_manager_cmd_clean="apt -y autoremove && apt -y clean"
         sys_manager_cmd_list="apt -qq list"
         ;;
@@ -186,7 +190,7 @@ sys_pkg_install() {
 ## @brief Update all system packages
 ## @retval exit_code of system package manager
 sys_pkg_update_all() {
-    $sys_manager_cmd_update
+    sh -c "$sys_manager_cmd_update"
 }
 
 ## @fn sys_pkg_installed()
