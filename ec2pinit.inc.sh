@@ -6,7 +6,14 @@
 ## @mainpage
 ## @section intro_sec Introduction
 ##
-## blah blah blah
+## This library is useful if you are not a systems administrator by trade yet been handed the daunting task of provisioning EC2 images to do data analysis or research. ec2_post_init provides a clean, easy to use API to install STScI software pipelines and system software.
+## 
+## @section require_sec Supported Operating Systems
+##
+## - Red Hat
+##   - CentOS 7+
+##   - Fedora 19+
+## - Debian
 ##
 ## @section install_sec Installation
 ##
