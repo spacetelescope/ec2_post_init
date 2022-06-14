@@ -44,14 +44,9 @@ jobs:
 
       - name: Install deps
         run: |
-          yum install -y git doxygen graphviz texlive-*
+          yum install -y git make doxygen graphviz
           
       - name: Build HTML documentation
         run: |
           cd docs
           doxygen
-
-      - name: Build HTML documentation
-        run: |
-          cd docs
-          make -C latex
