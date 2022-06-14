@@ -183,7 +183,7 @@ sys_pkg_install() {
         false
         return
     fi
-    $sys_manager_cmd_install $@
+    sh -c "$sys_manager_cmd_install $@"
 }
 
 ## @fn sys_pkg_update_all()
@@ -227,5 +227,5 @@ sys_pkg_installed() {
 ## @fn sys_pkg_clean()
 ## @brief Clean the system package manager's cache(s)
 sys_pkg_clean() {
-    $sys_manager_cmd_clean
+    sh -c "$sys_manager_cmd_clean"
 }
