@@ -5,7 +5,8 @@ source $ec2pinit_root/ec2pinit.inc.sh
 sys_pkg_update_all
 
 # Install additional packages
-sys_pkg_install gcc \
+sys_pkg_install curl \
+    gcc \
     git \
     sudo
 

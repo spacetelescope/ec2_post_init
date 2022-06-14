@@ -5,7 +5,8 @@ source $ec2pinit_root/ec2pinit.inc.sh
 sys_pkg_update_all
 
 # Install additional packages
-sys_pkg_install gcc \
+sys_pkg_install curl \
+    gcc \
     git \
     sudo
 
@@ -25,7 +26,7 @@ mc_initialize "$miniconda_root"
 
 # Fix recently introduced packaging bug 05/2022
 ac_releases_clone
-sed -i 's/hsluv.*/hsluv==5.0.3/' $ac_releases_path/de/$version_data_analysis/*.yml
+sed -i 's/hsluv.*/hsluv==5.0.3/' $ac_releases_path/de/f/*.yml
 
 # Install Data Analysis pipeline release
 ac_releases_install_data_analysis "f"

@@ -27,11 +27,29 @@ if (( $HAVE_DNF )) || (( $HAVE_YUM )); then
         zlib-devel \
         xauth \
         xterm
-#elif (( $HAVE_APT )); then
-#    sys_pkg_install \
-#        debian \
-#        based \
-#        packages here
+elif (( $HAVE_APT )); then
+    sys_pkg_install \
+	build-essential \
+        gcc \
+        bzip2 \
+        curl \
+        gcc \
+        g++ \
+        gfortran \
+        git \
+        libc6-dev \
+        libx11-dev \
+        libgl1-mesa-dri \
+        libgl1-mesa-glx \
+        libglu1-mesa \
+        libncurses5-dev \
+        openssh-server \
+        subversion \
+        sudo \
+        wget \
+        zlib1g-dev \
+        xauth \
+        xterm
 fi
 
 # "become" the target user
@@ -52,7 +70,7 @@ ac_releases_install_hst "stable"
 ac_releases_install_jwst "1.5.2"
 
 # Handle recently introduced packaging bug 05/2022 (old upstream tag deleted)
-sed -i 's/hsluv.*/hsluv==5.0.3/' $ac_releases_path/de/$version_data_analysis/*.yml
+sed -i 's/hsluv.*/hsluv==5.0.3/' $ac_releases_path/de/f/*.yml
 
 # Install 
 ac_releases_install_data_analysis "f"
