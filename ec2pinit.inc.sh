@@ -51,3 +51,4 @@ mkdir -p "$ec2pinit_tempdir"
 source $ec2pinit_framework/system.inc.sh
 source $ec2pinit_framework/miniconda.inc.sh
 source $ec2pinit_framework/astroconda.inc.sh
+source $ec2pinit_framework/docker.inc.sh
