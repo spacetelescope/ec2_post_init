@@ -165,8 +165,8 @@ case "$(basename $sys_manager_cmd)" in
         HAVE_APT=1
         HAVE_DEBIAN=1
         DEBIAN_FRONTEND=noninteractive
-        sys_manager_cmd_install="apt -y install"
-	sys_manager_cmd_update="apt update && apt -y upgrade"
+        sys_manager_cmd_install="apt update && apt -y install"
+        sys_manager_cmd_update="apt update && apt -y upgrade"
         sys_manager_cmd_clean="apt -y autoremove && apt -y clean"
         sys_manager_cmd_list="apt -qq list"
         ;;
