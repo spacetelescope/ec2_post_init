@@ -70,7 +70,7 @@ ac_releases_install_hst "stable"
 ac_releases_install_jwst "1.5.2"
 
 # Handle recently introduced packaging bug 05/2022 (old upstream tag deleted)
-sed -i 's/hsluv.*/hsluv==5.0.3/' $ac_releases_path/de/f/*.yml
+sed --follow-symlinks -i 's/hsluv.*/hsluv==5.0.3/' $ac_releases_path/de/f/*.yml
 
 # Install 
 ac_releases_install_data_analysis "f"

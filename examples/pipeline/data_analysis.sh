@@ -26,7 +26,7 @@ mc_initialize "$miniconda_root"
 
 # Fix recently introduced packaging bug 05/2022
 ac_releases_clone
-sed -i 's/hsluv.*/hsluv==5.0.3/' $ac_releases_path/de/f/*.yml
+sed --follow-symlinks -i 's/hsluv.*/hsluv==5.0.3/' $ac_releases_path/de/f/*.yml
 
 # Install Data Analysis pipeline release
 ac_releases_install_data_analysis "f"
