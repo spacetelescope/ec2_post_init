@@ -189,7 +189,7 @@ div.line {
 	text-indent: -53px;
 	padding-left: 53px;
 	padding-bottom: 0px;
-	margin: 0px;
+	margin: 6px;
 	-webkit-transition-property: background-color, box-shadow;
 	-webkit-transition-duration: 0.5s;
 	-moz-transition-property: background-color, box-shadow;
