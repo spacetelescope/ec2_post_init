@@ -1,5 +1,3 @@
-ec2pinit_root=$(realpath ..)
-
 oneTimeSetUp() {
     source ec2pinit.inc.sh
     mkdir -p "$ec2pinit_tempdir"/home/tester

@@ -1,4 +1,3 @@
-ec2pinit_root=$(realpath ..)
 if (( $EUID > 0 )); then
     not_root=1
 fi
