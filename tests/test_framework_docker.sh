@@ -1,4 +1,3 @@
-ec2pinit_root=$(realpath ..)
 if (( $EUID > 0 )) || ! (( $DANGEROUS_TESTS )); then
     exit 0
 fi
@@ -13,7 +12,7 @@ fi
 # I recommend using vagrant or some one-off virtual machine for this suite
 
 oneTimeSetUp() {
-    source $ec2pinit_root/ec2pinit.inc.sh
+    source ec2pinit.inc.sh
     mkdir -p "$ec2pinit_tempdir"/home/tester
     export HOME_ORIG="$HOME"
     export HOME="$ec2pinit_tempdir"/home/tester

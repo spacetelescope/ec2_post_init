@@ -1,7 +1,5 @@
-ec2pinit_root=$(realpath ..)
-
 oneTimeSetUp() {
-    source $ec2pinit_root/ec2pinit.inc.sh
+    source ec2pinit.inc.sh
     mkdir -p "$ec2pinit_tempdir"/home/tester
     export HOME_ORIG="$HOME"
     export HOME="$ec2pinit_tempdir"/home/tester

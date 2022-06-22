@@ -1,7 +1,5 @@
-ec2pinit_root=$(realpath ..)
-
 oneTimeSetUp() {
-    source $ec2pinit_root/ec2pinit.inc.sh
+    source ec2pinit.inc.sh
 }
 
 test_config() {

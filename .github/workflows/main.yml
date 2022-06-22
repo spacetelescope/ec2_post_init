@@ -27,7 +27,6 @@ jobs:
           
       - name: Run tests
         run: |
-          export PATH="$PATH:$(pwd)/bin"
           cd tests
           bash run_tests.sh
 

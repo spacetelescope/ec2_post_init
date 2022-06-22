@@ -1,7 +1,7 @@
 ec2pinit_root=$(realpath ..)
 
 oneTimeSetUp() {
-    source $ec2pinit_root/ec2pinit.inc.sh
+    source ec2pinit.inc.sh
     mkdir -p "$ec2pinit_tempdir"/home/tester
     export HOME_ORIG="$HOME"
     export HOME="$ec2pinit_tempdir"/home/tester
@@ -12,8 +12,9 @@ oneTimeSetUp() {
 test_mc_get() {
     mc_get "$version" 1>/dev/null
     retval=$?
+    installer="$ec2pinit_tempdir/$mc_installer"
     assertTrue "download failed" '[ $retval -eq 0 ]'
-    assertTrue "$mc_installer was not created" '[ -f $mc_installer ]'
+    assertTrue "$installer was not created" '[ -f "$installer" ]'
 }
 
 test_mc_install() {

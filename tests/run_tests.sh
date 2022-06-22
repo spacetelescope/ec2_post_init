@@ -5,6 +5,7 @@ if ! type -p git; then
     exit 1
 fi
 
+export PATH="$PATH:$(realpath ../bin)"
 export shunit_path="$(pwd)/shunit"
 [ ! -d "$shunit_path" ] && git clone https://github.com/kward/shunit2 "$shunit_path"
 

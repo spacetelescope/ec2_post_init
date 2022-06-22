@@ -50,12 +50,12 @@ _get_rc() {
 ## @see config.sh
 mc_get() {
     local version="$1"
-    local dest="${2:-$ec2pinit_tempdir/$mc_installer}"
+    local dest="$ec2pinit_tempdir"
     local platform="$(sys_platform)"
     local arch="$(sys_arch)"
     local name="Miniconda3-$version-$platform-$arch.sh"
 
-    if [ -f "$name" ]; then
+    if [ -f "$dest/$mc_installer" ]; then
         return
     fi
 
@@ -129,7 +129,7 @@ mc_install() {
         return
     fi
 
-    if ! mc_get "$version" "$ec2pinit_tempdir"; then
+    if ! mc_get "$version"; then
         echo "mc_install: unable to obtain miniconda from server" >&2
         false
         return
