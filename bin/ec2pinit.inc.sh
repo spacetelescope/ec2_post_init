@@ -54,7 +54,6 @@ EC2PINIT_INCLUDED=1
 ## Do not change this value
 ec2pinit_root="$(readlink -f $(dirname ${BASH_SOURCE[0]})/..)"
 export ec2pinit_root
-exit 1
 
 ## Path to framework directory
 ##
