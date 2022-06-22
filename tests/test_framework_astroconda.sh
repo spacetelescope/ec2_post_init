@@ -1,8 +1,9 @@
 oneTimeSetUp() {
     source ec2pinit.inc.sh
-    mkdir -p "$ec2pinit_tempdir"/home/tester
+    mkdir -p "$ec2pinit_tempdir"/home
     export HOME_ORIG="$HOME"
     export HOME="$ec2pinit_tempdir"/home/tester
+    cp -a /etc/skel $HOME || mkdir -p $HOME
     dest="$HOME"/miniconda3
     version="latest"
 }

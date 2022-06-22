@@ -27,7 +27,7 @@ mc_installer="miniconda3_install.sh"
 ## @retval false if ``home`` does not exist
 _get_rc() {
     local scripts=(.bash_profile .bashrc .profile)
-    local home="$(sys_user_home $1)"
+    local home="$(sys_user_home ${1:-$USER})"
     if [ -z "$home" ] || [ ! -d "$home" ]; then
 	false
         return
@@ -75,7 +75,7 @@ mc_configure_defaults() {
     conda config --system --set always_yes true
     conda config --system --set report_errors false
 
-    # Debian defaults to .bashrc instead of .bash_profile.
+    # Some skeletons default to .bashrc instead of .bash_profile.
     local rc="$(_get_rc)"
     if ! grep -E '[^#](export)?[\t\ ]+PIP_VERBOSE=' "$rc" &>/dev/null; then
         echo export PIP_VERBOSE=1 >> "$rc"
