@@ -57,6 +57,7 @@ mc_get() {
 
     if [ -f "$dest/$mc_installer" ]; then
 	io_warn "mc_get: $dest/$mc_installer exists"
+        false
         return
     fi
     io_info "mc_get: Downloading $mc_url/$name"
@@ -139,7 +140,7 @@ mc_install() {
         return
     fi
 
-    if ! mc_get "$version"; then
+    if mc_get "$version"; then
         io_error "mc_install: unable to obtain miniconda from server" >&2
         false
         return
