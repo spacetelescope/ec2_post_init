@@ -47,6 +47,7 @@
 
 (( $EC2PINIT_INCLUDED )) && return
 EC2PINIT_INCLUDED=1
+
 # Constants
 
 ## Path to ec2pinit directory
@@ -67,7 +68,16 @@ export ec2pinit_framework
 ec2pinit_tempdir=/tmp/ec2_post_init
 export ec2pinit_tempdir
 
+## Debug output control
+##
+## 0 = errors
+## 1 = warnings & errors
+## 2 = information & warnings & errors
+ec2pinit_debug=${ec2pinit_debug:-0}
+export ec2pinit_debug
+
 mkdir -p "$ec2pinit_tempdir"
+source $ec2pinit_framework/io.inc.sh
 source $ec2pinit_framework/system.inc.sh
 source $ec2pinit_framework/miniconda.inc.sh
 source $ec2pinit_framework/astroconda.inc.sh

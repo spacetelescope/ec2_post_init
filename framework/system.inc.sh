@@ -111,18 +111,19 @@ sys_reset_home_ownership() {
     local user="${1:-$USER}"
 
     if [ -z "$user" ]; then
-        echo "sys_reset_home_ownership: user name required" >&2
+        io_error "sys_reset_home_ownership: user name required"
         false
         return
     fi
 
     home="$(getent passwd $user | awk -F: '{ print $6 }')"
     if [ -z "$home" ]; then
-        echo "sys_reset_home_ownership: reset failed" >&2
+        io_error "sys_reset_home_ownership: reset failed"
         false
         return
     fi
 
+    io_info "sys_reset_home_ownership: ${home} will be owned by ${user}"
     chown -R "${user}": "${home}"
 }
 
@@ -134,7 +135,6 @@ sys_pkg_get_manager() {
         "dnf"
         "yum"
         "apt"
-        "apt-get"
         ""
     )
     local result="";
@@ -178,7 +178,9 @@ case "$(basename $sys_manager_cmd)" in
         sys_manager_cmd_list="apt -qq list"
         ;;
 esac
-
+io_info "system: Detected package manager: $sys_manager_cmd"
+io_info "system: is based on Red Hat? $(( HAVE_REDHAT ))"
+io_info "system: is based on Debian? $(( HAVE_DEBIAN ))"
 
 ## @fn sys_pkg_install()
 ## @brief Install a system package
@@ -186,10 +188,11 @@ esac
 ## @retval exit_code of system package manager
 sys_pkg_install() {
     if (( "$#" < 1 )); then
-        echo "sys_pkg_install: at least one package name is required" >&2
+        io_error "sys_pkg_install: at least one package name is required"
         false
         return
     fi
+    io_info "sys_pkg_install: Installing $@"
     sh -c "$sys_manager_cmd_install $@"
 }
 
@@ -197,6 +200,7 @@ sys_pkg_install() {
 ## @brief Update all system packages
 ## @retval exit_code of system package manager
 sys_pkg_update_all() {
+    io_info "sys_pkg_update_all: Updating system packages"
     sh -c "$sys_manager_cmd_update"
 }
 
@@ -209,7 +213,7 @@ sys_pkg_installed() {
     local output=''
     local name="$1"
     if (( "$#" < 1 )); then
-        echo "sys_pkg_installed: package name is required" >&2
+        io_error "sys_pkg_installed: package name is required"
         false
         return
     fi
@@ -234,5 +238,6 @@ sys_pkg_installed() {
 ## @fn sys_pkg_clean()
 ## @brief Clean the system package manager's cache(s)
 sys_pkg_clean() {
+    io_info "sys_pkg_clean: Clearing caches"
     sh -c "$sys_manager_cmd_clean"
 }

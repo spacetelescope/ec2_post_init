@@ -15,6 +15,7 @@ docker_setup() {
     local user="${1:-$USER}"
     local bind_port=
 
+    io_info "docker_setup: Installing docker"
     if (( HAVE_DEBIAN )); then
         # see: https://docs.docker.com/engine/install/debian/ 
         sys_pkg_install apt-transport-https ca-certificates curl gnupg lsb-release
@@ -29,15 +30,17 @@ docker_setup() {
             https://download.docker.com/linux/centos/docker-ce.repo
         sys_pkg_install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     else
-        echo "WARNING: Operating system was not recognized. Blindly attempting to install docker." >&2
+        io_warn "docker_setup: Operating system was not recognized. Blindly attempting to install docker." >&2
         sys_pkg_install docker docker-compose
     fi
     
     # Enable the system service
+    io_info "docker_setup: Enabling docker"
     systemctl enable docker
 
     if [ -n "$bind_port" ] && [[ $bind_port =~ [0-9]+ ]]; then
         # Allow any local account to use the docker API port
+        io_info "docker_setup: Binding docker to port 127.0.0.1:${bind_port}"
         mkdir -p /etc/systemd/system/docker.service.d
 cat << CONFIG > /etc/systemd/system/docker.service.d/override.conf
 [Service]
@@ -48,9 +51,13 @@ CONFIG
         source /etc/profile.d/docker_host.sh
     else
         # Only the named can use docker
+        io_info "docker_setup: adding $user to docker group"
         docker_user_add "$user"
     fi
+
+    io_info "docker_setup: Reloading systemd"
     systemctl daemon-reload
+    io_info "docker_setup: Starting docker"
     systemctl start docker
 }
 
@@ -85,9 +92,9 @@ docker_pull_many() {
         return
     fi
 
-    echo "Pulling $image_count image(s)..."
+    io_info "Pulling $image_count image(s)..."
     for ((i = 0; i < image_count; i++)); do
-        echo "Image #$((i+1)): ${image[i]}"
+        io_info "Image #$((i+1)): ${image[i]}"
         if ! docker pull "${image[$i]}"; then
             (( error_count++ ))
         fi

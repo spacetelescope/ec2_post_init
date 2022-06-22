@@ -38,6 +38,7 @@ ac_platform() {
 ## @see config.sh
 ac_releases_clone() {
     if [ ! -d "$ac_releases_path" ]; then
+        io_info "ac_releases_clone: Cloning astroconda releases repository"
         git clone $ac_releases_repo $ac_releases_path >&2
     fi
 }
@@ -211,12 +212,13 @@ ac_releases_hst_environ() {
 ac_releases_install_hst() {
     local version="$1"
     if [ -z "$version" ]; then
-        echo "ac_releases_install_hst: release version required" >&2
+        io_error "ac_releases_install_hst: release version required"
         false
         return
     fi
     local release_file=$(ac_releases_hst $version)
     local release_name=$(ac_releases_hst_environ $version)
+    io_info "ac_releases_install_hst: Creating $release_name environment"
     conda env create -n $release_name --file $release_file
 }
 
@@ -227,14 +229,17 @@ ac_releases_install_hst() {
 ac_releases_install_jwst() {
     local version="$1"
     if [ -z "$version" ]; then
-        echo "ac_releases_install_jwst: release version required" >&2
+        io_error "ac_releases_install_jwst: release version required" >&2
         false
         return
     fi
     release_file=($(ac_releases_jwst $version_jwst))
     release_name=$(ac_releases_jwst_environ $version_jwst)
+    io_info "ac_releases_install_jwst: Creating $release_name environment"
     conda create -n $release_name --file ${release_file[0]}
+    io_info "ac_releases_install_jwst: Activating $release_name environment"
     conda activate $release_name
+    io_info "ac_releases_install_jwst: Installing dependencies: ${release_file[1]}"
     python -m pip install -r ${release_file[1]}
     conda deactivate
 }
@@ -246,11 +251,12 @@ ac_releases_install_jwst() {
 ac_releases_install_data_analysis() {
     local version="$1"
     if [ -z "$version" ]; then
-        echo "ac_releases_install_data_analysis: release version required" >&2
+        io_error "ac_releases_install_data_analysis: release version required"
         false
         return
     fi
     local release_file=$(ac_releases_data_analysis $version)
     local release_name=$(ac_releases_data_analysis_environ $version)
+    io_info "ac_releases_install_data_analysis: Creating $release_name environment"
     conda env create -n $release_name --file $release_file
 }

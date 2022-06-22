@@ -56,9 +56,11 @@ mc_get() {
     local name="Miniconda3-$version-$platform-$arch.sh"
 
     if [ -f "$dest/$mc_installer" ]; then
+	io_warn "mc_get: $dest/$mc_installer exists"
         return
     fi
-
+    io_info "mc_get: Downloading $mc_url/$name"
+    io_info "mc_get: Destination: $dest/$mc_installer"
     curl -L -o "$dest/$mc_installer" "$mc_url/$name"
 }
 
@@ -68,17 +70,23 @@ mc_get() {
 mc_configure_defaults() {
     if [ -z "$CONDA_EXE" ]; then
         # Not initialized correctly
+	io_error "mc_configure_defaults: conda is not initialized"
         false
         return
     fi
+    io_info "mc_configure_defaults: Configuring conda options"
     conda config --system --set auto_update_conda false
     conda config --system --set always_yes true
     conda config --system --set report_errors false
 
     # Some skeletons default to .bashrc instead of .bash_profile.
     local rc="$(_get_rc)"
+    io_info "mc_configure_defaults: Enabling verbose output from pip"
     if ! grep -E '[^#](export)?[\t\ ]+PIP_VERBOSE=' "$rc" &>/dev/null; then
         echo export PIP_VERBOSE=1 >> "$rc"
+	io_info "mc_configure_defaults: $rc modified"
+    else
+	io_info "mc_configure_defaults: $rc not modified"
     fi
 }
 
@@ -96,6 +104,8 @@ mc_initialize() {
         set +v
         trap 'set -x' RETURN
     fi
+
+    io_info "mc_initialize: Using conda: $dest"
     source "$dest"/etc/profile.d/conda.sh ; conda init
     mc_configure_defaults
 }
@@ -113,28 +123,29 @@ mc_install() {
     local version="$1"
     local dest="$2"
     local cmd="bash "$ec2pinit_tempdir/$mc_installer" -b -p $dest"
-
+    
     if [ -z "$version" ]; then
-        echo "mc_install: miniconda version required" >&2
+        io_error "mc_install: miniconda version required" >&2
         return false
     fi
 
     if [ -z "$dest" ]; then
-        echo "mc_install: miniconda destination directory required" >&2
+        io_error "mc_install: miniconda destination directory required" >&2
         false
         return
     elif [ -d "$dest" ]; then
-        echo "mc_install: miniconda destination directory exists" >&2
+        io_error "mc_install: miniconda destination directory exists" >&2
         false
         return
     fi
 
     if ! mc_get "$version"; then
-        echo "mc_install: unable to obtain miniconda from server" >&2
+        io_error "mc_install: unable to obtain miniconda from server" >&2
         false
         return
     fi
 
+    io_info "mc_install: Installing conda: $dest"
     $cmd
 }
 
@@ -145,6 +156,7 @@ mc_install() {
 mc_clean() {
     if [ -z "$CONDA_EXE" ]; then
         # Not initialized correctly
+	io_error "mc_clean: conda is not initialized"
         false
         return
     fi
