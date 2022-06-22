@@ -3,7 +3,7 @@
 
 (( $EC2PINIT_DOCKER_INCLUDED )) && return
 EC2PINIT_DOCKER_INCLUDED=1
-source $ec2pinit_root/ec2pinit.inc.sh
+source ec2pinit.inc.sh
 
 ## @fn docker_setup()
 ## @brief Install docker on the server

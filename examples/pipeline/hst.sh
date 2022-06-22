@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source $ec2pinit_root/ec2pinit.inc.sh
+source ec2pinit.inc.sh
 
 # Update system packages
 sys_pkg_update_all

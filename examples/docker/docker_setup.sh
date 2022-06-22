@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source $ec2pinit_root/ec2pinit.inc.sh
+source ec2pinit.inc.sh
 
 docker_setup "$USER"
 docker_pull_many "centos:7" "centos:8"

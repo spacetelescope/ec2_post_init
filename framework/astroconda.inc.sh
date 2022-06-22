@@ -3,7 +3,14 @@
 
 (( $EC2PINIT_ASTROCONDA_INCLUDED )) && return
 EC2PINIT_ASTROCONDA_INCLUDED=1
-source $ec2pinit_root/config.sh
+source ec2pinit.inc.sh
+
+## URL to astroconda releases Git repository (or local file system)
+ac_releases_repo="https://github.com/astroconda/astroconda-releases"
+
+## Path where ec2pinit will store the astroconda releases repository
+ac_releases_path="$ec2pinit_tempdir/$(basename $ac_releases_repo)"
+
 
 ## @fn ac_platform()
 ## @brief Get astroconda platform string
@@ -30,7 +37,6 @@ ac_platform() {
 ## @details The destination is $ec2pinit_tempdir
 ## @see config.sh
 ac_releases_clone() {
-    mkdir -p "$ec2pinit_tempdir"
     if [ ! -d "$ac_releases_path" ]; then
         git clone $ac_releases_repo $ac_releases_path >&2
     fi

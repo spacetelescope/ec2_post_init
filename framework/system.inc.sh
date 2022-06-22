@@ -3,7 +3,7 @@
 
 (( $EC2PINIT_SYSTEM_INCLUDED )) && return
 EC2PINIT_SYSTEM_INCLUDED=1
-source $ec2pinit_root/ec2pinit.inc.sh
+source ec2pinit.inc.sh
 
 _sys_user_old=''
 _sys_user_home_old=''
@@ -22,6 +22,9 @@ export HAVE_REDHAT=0
 
 ## System is based on Debian
 export HAVE_DEBIAN=0
+
+## System is based on Ubuntu
+export HAVE_UBUNTU=0
 
 ## @fn sys_user_push()
 ## @brief Lazily "become" another user

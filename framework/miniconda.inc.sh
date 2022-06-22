@@ -3,7 +3,44 @@
 
 (( $EC2PINIT_MINICONDA_INCLUDED )) && return
 EC2PINIT_MINICONDA_INCLUDED=1
-source $ec2pinit_root/ec2pinit.inc.sh
+source ec2pinit.inc.sh
+
+# URL to a site providing miniconda installers
+mc_url="https://repo.anaconda.com/miniconda"
+
+# Name of miniconda installation script
+mc_installer="miniconda3_install.sh"
+
+
+## @fn _get_rc()
+## @private
+## @brief Get the default bash rc script for the user account
+## @code{.sh}
+## # Red Hat...
+## rc=$(_get_rc)
+## # rc=/home/example/.bash_profile
+##
+## Debian...
+## rc=$(_get_rc)
+## # rc=/home/example/.bashrc
+## @endcode
+## @retval false if ``home`` does not exist
+_get_rc() {
+    local scripts=(.bash_profile .bashrc .profile)
+    local home="$(sys_user_home $1)"
+    if [ -z "$home" ] || [ ! -d "$home" ]; then
+	false
+        return
+    fi
+
+    for x in "${scripts[@]}"; do
+        local filename="$home/$x"
+        [ ! -f "$filename" ] && continue
+        echo $filename
+        break
+    done
+}
+
 
 ## @fn mc_get()
 ## @brief Download Miniconda3
@@ -13,15 +50,16 @@ source $ec2pinit_root/ec2pinit.inc.sh
 ## @see config.sh
 mc_get() {
     local version="$1"
+    local dest="${2:-$ec2pinit_tempdir/$mc_installer}"
     local platform="$(sys_platform)"
     local arch="$(sys_arch)"
     local name="Miniconda3-$version-$platform-$arch.sh"
 
-    if [ -f "$mc_installer" ]; then
+    if [ -f "$name" ]; then
         return
     fi
 
-    curl -L -o $mc_installer "$mc_url/$name"
+    curl -L -o "$dest/$mc_installer" "$mc_url/$name"
 }
 
 
@@ -36,10 +74,14 @@ mc_configure_defaults() {
     conda config --system --set auto_update_conda false
     conda config --system --set always_yes true
     conda config --system --set report_errors false
-    if ! grep -E '[^#](export)?[\t\ ]+PIP_VERBOSE=' ~/.bash_profile &>/dev/null; then
-        echo export PIP_VERBOSE=1 >> $HOME/.bash_profile
+
+    # Debian defaults to .bashrc instead of .bash_profile.
+    local rc="$(_get_rc)"
+    if ! grep -E '[^#](export)?[\t\ ]+PIP_VERBOSE=' "$rc" &>/dev/null; then
+        echo export PIP_VERBOSE=1 >> "$rc"
     fi
 }
+
 
 ## @fn mc_initialize()
 ## @brief Configures user account to load conda at login
@@ -70,7 +112,7 @@ mc_initialize() {
 mc_install() {
     local version="$1"
     local dest="$2"
-    local cmd="bash $mc_installer -b -p $dest"
+    local cmd="bash "$ec2pinit_tempdir/$mc_installer" -b -p $dest"
 
     if [ -z "$version" ]; then
         echo "mc_install: miniconda version required" >&2
@@ -87,7 +129,7 @@ mc_install() {
         return
     fi
 
-    if ! mc_get "$version"; then
+    if ! mc_get "$version" "$ec2pinit_tempdir"; then
         echo "mc_install: unable to obtain miniconda from server" >&2
         false
         return
