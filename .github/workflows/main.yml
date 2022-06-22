@@ -28,6 +28,7 @@ jobs:
       - name: Run tests
         run: |
           cd tests
+          export ec2pinit_debug=2
           bash run_tests.sh
 
   docs:
