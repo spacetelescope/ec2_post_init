@@ -70,9 +70,11 @@ export ec2pinit_tempdir
 
 ## Debug output control
 ##
-## 0 = errors
-## 1 = warnings & errors
-## 2 = information & warnings & errors
+## ``0`` = errors
+##
+## ``1`` = warnings & errors
+##
+## ``2`` = information & warnings & errors
 ec2pinit_debug=${ec2pinit_debug:-0}
 export ec2pinit_debug
 
