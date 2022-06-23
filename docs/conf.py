@@ -13,9 +13,18 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+import os
+import shutil
 import subprocess
 
+print("current directory: {}".format(os.path.abspath(os.curdir)))
+if os.path.exists("html"):
+    shutil.rmtree("html")
 
+# Update doxygen config
+subprocess.run("doxygen -u", shell=True)
+
+# Run doxygen
 subprocess.run("doxygen", shell=True)
 
 # -- Project information -----------------------------------------------------
