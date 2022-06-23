@@ -186,6 +186,23 @@ io_info "system: is based on Debian? $(( HAVE_DEBIAN ))"
 ## @brief Install a system package
 ## @param ... a variable length list of packages to install
 ## @retval exit_code of system package manager
+##
+## @code{.sh}
+## # Install vim and nano
+## sys_pkg_install nano
+## if (( $HAVE_REDHAT )); then
+##     sys_pkg_install vim
+## elif (( $HAVE_DEBIAN )); then
+##     sys_pkg_install vim-common
+## fi
+##
+## # Alternative method using an array to dynamically set dependencies
+## deps=(nano)
+## (( $HAVE_REDHAT )) && deps+=(vim)
+## (( $HAVE_DEBIAN )) && deps+=(vim-common)
+## sys_pkg_install "${deps[@]}"
+
+## @endcode
 sys_pkg_install() {
     if (( "$#" < 1 )); then
         io_error "sys_pkg_install: at least one package name is required"

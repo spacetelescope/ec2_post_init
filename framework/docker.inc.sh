@@ -1,5 +1,9 @@
 ## @file
 ## @brief Docker functions
+## @details
+## @section docker_example Example
+## @include docker_setup.sh
+## @example docker_setup.sh
 
 (( $EC2PINIT_DOCKER_INCLUDED )) && return
 EC2PINIT_DOCKER_INCLUDED=1

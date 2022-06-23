@@ -44,6 +44,10 @@
 ##
 ## @include cumulative.sh
 ## @example cumulative.sh
+##
+## @page license_page License
+## @include LICENSE.txt
+##
 
 (( $EC2PINIT_INCLUDED )) && return
 EC2PINIT_INCLUDED=1

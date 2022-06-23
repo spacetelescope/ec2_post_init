@@ -1,5 +1,14 @@
 ## @file
 ## @brief Astroconda control functions
+## @details
+## @section astroconda_hst_example HST Example
+## @include pipeline/hst.sh
+##
+## @section astroconda_jwst_example JWST Example
+## @include pipeline/jwst.sh
+##
+## @section astroconda_data_analysis_example Data Analysis Example
+## @include pipeline/data_analysis.sh
 
 (( $EC2PINIT_ASTROCONDA_INCLUDED )) && return
 EC2PINIT_ASTROCONDA_INCLUDED=1
