@@ -6,7 +6,6 @@ EC2PINIT_IO_INCLUDED=1
 source ec2pinit.inc.sh
 
 ## Date format for IO functions
-##
 io_datefmt="%Y-%m-%d %H:%M:%S"
 export io_datefmt
 

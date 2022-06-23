@@ -3,7 +3,6 @@
 ## @details
 ## @section miniconda_example Example
 ## @include miniconda_setup.sh
-## @example miniconda_setup.sh
 
 (( $EC2PINIT_MINICONDA_INCLUDED )) && return
 EC2PINIT_MINICONDA_INCLUDED=1

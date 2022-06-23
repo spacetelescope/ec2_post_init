@@ -217,7 +217,7 @@ ac_releases_hst_environ() {
 
 ## @fn ac_releases_install_hst()
 ## @brief Install the HST pipeline
-## @param version 
+## @param version pipeline release version
 ac_releases_install_hst() {
     local version="$1"
     if [ -z "$version" ]; then
@@ -234,7 +234,7 @@ ac_releases_install_hst() {
 
 ## @fn ac_releases_install_jwst()
 ## @brief Install the JWST pipeline
-## @param version 
+## @param version pipeline release version
 ac_releases_install_jwst() {
     local version="$1"
     if [ -z "$version" ]; then
@@ -256,7 +256,7 @@ ac_releases_install_jwst() {
 
 ## @fn ac_releases_install_data_analysis()
 ## @brief Install the data analysis pipeline
-## @param version 
+## @param version pipeline release version
 ac_releases_install_data_analysis() {
     local version="$1"
     if [ -z "$version" ]; then

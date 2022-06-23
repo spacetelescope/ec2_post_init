@@ -2,7 +2,7 @@
 ## @brief Framework entrypoint
 ##
 ## Include this file in your script to use ec2pinit's functions
-
+##
 ## @mainpage
 ## @section intro_sec Introduction
 ##
@@ -43,30 +43,29 @@
 ## @section example_sec Full Example
 ##
 ## @include cumulative.sh
-## @example cumulative.sh
 ##
 ## @page license_page License
 ## @include LICENSE.txt
-##
 
 (( $EC2PINIT_INCLUDED )) && return
 EC2PINIT_INCLUDED=1
 
-# Constants
-
-## Path to ec2pinit directory
+## @property ec2pinit_root
+## @brief Path to ec2pinit directory
 ##
 ## Do not change this value
 ec2pinit_root="$(readlink -f $(dirname ${BASH_SOURCE[0]})/..)"
 export ec2pinit_root
 
-## Path to framework directory
+## @property ec2pinit_framework
+## @brief Path to framework directory
 ##
 ## Do not change this value
 ec2pinit_framework="$ec2pinit_root"/framework
 export ec2pinit_framework
 
-## Where ec2pinit will store temporary data
+## @property ec2pinit_tempdir
+## @brief Where ec2pinit will store temporary data
 ##
 ## Do not change this value
 ec2pinit_tempdir=/tmp/ec2_post_init
@@ -92,8 +91,9 @@ export DEBUG_DEFAULT
 DEBUG_ALL=$(( DEBUG_INFO | DEBUG_WARN | DEBUG_ERROR ))
 export DEBUG_ALL
 
-## Debug output control
-##
+## @property ec2pinit_debug
+## @brief Debug output control
+## 
 ## Set print statement behavior with: ``DEBUG_INFO``, ``DEBUG_WARN``, and ``DEBUG_ERROR``
 ## @code{.sh}
 ## ec2pinit_debug=$(( DEBUG_WARN | DEBUG_ERROR ))
