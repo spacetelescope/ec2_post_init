@@ -72,15 +72,43 @@ export ec2pinit_framework
 ec2pinit_tempdir=/tmp/ec2_post_init
 export ec2pinit_tempdir
 
+## FLAG - Print info messages
+DEBUG_INFO=$(( 1 << 1 ))
+export DEBUG_INFO
+
+## FLAG - Print warning messages
+DEBUG_WARN=$(( 1 << 2 ))
+export DEBUG_WARN
+
+## FLAG - Print error messages
+DEBUG_ERROR=$(( 1 << 3 ))
+export DEBUG_ERROR
+
+## FLAG - Print only warnings and errors
+DEBUG_DEFAULT=$(( DEBUG_WARN | DEBUG_ERROR ))
+export DEBUG_DEFAULT
+
+## FLAG - Print all messages
+DEBUG_ALL=$(( DEBUG_INFO | DEBUG_WARN | DEBUG_ERROR ))
+export DEBUG_ALL
+
 ## Debug output control
 ##
-## ``0`` = errors
-##
-## ``1`` = warnings & errors
-##
-## ``2`` = information & warnings & errors
-ec2pinit_debug=${ec2pinit_debug:-0}
+## Set print statement behavior with: ``DEBUG_INFO``, ``DEBUG_WARN``, and ``DEBUG_ERROR``
+## @code{.sh}
+## ec2pinit_debug=$(( DEBUG_WARN | DEBUG_ERROR ))
+## @endcode
+ec2pinit_debug=${ec2pinit_debug:-$DEBUG_DEFAULT}
 export ec2pinit_debug
+
+# If the user modifies debug flags through the environment
+# verify an integer was received. If not then use the defaults
+if ! [[ "$ec2pinit_debug" =~ [0-9]+ ]]; then
+    # pre-IO function availability
+    echo "WARN: ec2pinit_debug: Must be a positive integer!" >&2
+    echo "WARN: Using DEBUG_DEFAULT ($DEBUG_DEFAULT)." >&2
+    ec2pinit_debug=$DEBUG_DEFAULT
+fi
 
 mkdir -p "$ec2pinit_tempdir"
 source $ec2pinit_framework/io.inc.sh

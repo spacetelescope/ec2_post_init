@@ -23,15 +23,22 @@ docker_setup() {
     if (( HAVE_DEBIAN )); then
         # see: https://docs.docker.com/engine/install/debian/ 
         sys_pkg_install apt-transport-https ca-certificates curl gnupg lsb-release
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        if [ ! -f "/etc/apt/keyrings/docker.gpg" ]; then
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        fi
+        if [ ! -f "/etc/apt/sources.list.d/docker.list" ]; then
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
+                | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        fi
         sys_pkg_clean
         sys_pkg_install docker-ce docker-ce-cli containerd.io docker-compose
     elif (( HAVE_REDHAT )); then
         # see: https://docs.docker.com/engine/install/centos/
-        yum-config-manager --add-repo \
-            https://download.docker.com/linux/centos/docker-ce.repo
+        if [ ! -f /etc/yum.repos.d/docker-ce.repo ]; then
+            yum-config-manager --add-repo \
+                https://download.docker.com/linux/centos/docker-ce.repo
+        fi
         sys_pkg_install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     else
         io_warn "docker_setup: Operating system was not recognized. Blindly attempting to install docker." >&2
