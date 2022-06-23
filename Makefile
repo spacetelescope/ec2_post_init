@@ -18,11 +18,11 @@ all: docs
 
 docs/html/index.html:
 	@echo generate html
-	(type -p doxygen && (cd docs && doxygen 1>/dev/null))
+	(cd docs && doxygen 1>/dev/null)
 
 docs/latex/refman.pdf:
 	@echo generate pdf
-	(type -p pdflatex && (cd docs && make -C latex 1>/dev/null))
+	(cd docs && make -C latex 1>/dev/null)
 
 html: $(HTML_OBJ)
 
@@ -30,7 +30,9 @@ pdf: $(PDF_OBJ)
 
 docs: html pdf
 
-install: install-doc-html install-doc-pdf install-bin install-framework
+install: install-bin install-framework
+
+install-doc: install-doc-html install-doc-pdf
 
 install-bin: $(B_OBJ)
 	mkdir -p $(DESTDIR)$(BINDIR)

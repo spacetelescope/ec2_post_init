@@ -18,7 +18,9 @@
 ## @section install_sec Installation
 ##
 ## @code{.sh}
-## sudo git clone https://github.com/spacetelescope/ec2_post_init /usr/share/ec2_post_init
+## git clone https://github.com/spacetelescope/ec2_post_init
+## cd ec2_post_init
+## sudo make install PREFIX=/usr/local
 ## @endcode
 ##
 ## @section usage_sec Using ec2_post_init
