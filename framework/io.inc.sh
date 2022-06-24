@@ -22,7 +22,7 @@ io_timestamp() {
 ##
 ## @code{.sh}
 ## var=hello
-## ec2pinit_debug=2
+## ec2pinit_debug=$DEBUG_INFO
 ## io_info "$var"
 ## # 2022-06-22 18:46:57 - INFO: hello
 ## @endcode
@@ -37,7 +37,7 @@ io_info() {
 ##
 ## @code{.sh}
 ## var=hello
-## ec2pinit_debug=1
+## ec2pinit_debug=$DEBUG_WARN
 ## io_warn "uh oh... $var"
 ## # 2022-06-22 18:46:57 - WARN: uh oh... hello
 ## @endcode
@@ -52,7 +52,7 @@ io_warn() {
 ##
 ## @code{.sh}
 ## var=hello
-## ec2pinit_debug=0
+## ec2pinit_debug=$DEBUG_ERROR
 ## io_error "oh no... $var"
 ## # 2022-06-22 18:46:57 - ERROR: oh no... hello
 ## @endcode
