@@ -25,13 +25,7 @@
 ##
 ## @section usage_sec Using ec2_post_init
 ##
-## To begin using the library append ``ec2_post_init/bin`` to your ``PATH``
-##
-## @code{.sh}
-## export PATH="$PATH:/usr/share/ec2_post_init/bin"
-## @endcode
-##
-## And include it in your own script by sourcing ``ec2pinit.inc.sh``...
+## Now you can include the library in your own script by sourcing ``ec2pinit.inc.sh``...
 ##
 ## @code{.sh}
 ## #!/usr/bin/env bash
