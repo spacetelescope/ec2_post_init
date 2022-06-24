@@ -12,9 +12,20 @@ PDF_OBJ=docs/latex/refman.pdf
 
 .PHONY: clean
 
-all: docs
-	@echo Build complete. Install using:
-	@echo make install PREFIX=$(PREFIX)
+all:
+	@echo "targets:"
+	@echo
+	@echo "docs             => build $(PROG) documentation"
+	@echo "html             => build html documentation"
+	@echo "pdf              => build pdf documentation"
+	@echo "install          => install $(PROG)"
+	@echo "install-doc      => install documentation"
+	@echo "install-doc-html => install HTML documentation"
+	@echo "install-doc-pdf  => install PDF documentation"
+	@echo
+	@echo To install $(PROG) in a different location use PREFIX=
+	@echo make install PREFIX=/abc/123
+	@echo
 
 docs/html/index.html:
 	@echo generate html
