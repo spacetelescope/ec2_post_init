@@ -47,17 +47,19 @@ install-doc: install-doc-html install-doc-pdf
 
 install-bin: $(B_OBJ)
 	mkdir -p $(DESTDIR)$(BINDIR)
-	@for x in $(B_OBJ); do \
+	for x in $(B_OBJ); do \
 		echo installing $$x; \
 		install -m644 $$x $(DESTDIR)$(BINDIR); \
 	done
 
 install-framework: $(F_OBJ)
 	mkdir -p $(DESTDIR)$(DATADIR)/$(PROG)/framework
-	@for x in $(F_OBJ); do \
+	for x in $(F_OBJ); do \
 		echo installing $$x; \
 		install -m644 $$x $(DESTDIR)$(DATADIR)/$(PROG)/framework; \
 	done
+	install -m644 LICENSE.txt $(DESTDIR)$(DATADIR)/$(PROG)
+	cp -a examples $(DESTDIR)$(DATADIR)/$(PROG)
 
 install-doc-html: html
 	mkdir -p $(DESTDIR)$(DOCDIR)/$(PROG)
