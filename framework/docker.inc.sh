@@ -17,6 +17,9 @@ source ec2pinit.inc.sh
 docker_setup() {
     local user="${1:-$USER}"
     local bind_port=
+    if (( ! HAVE_SUPPORT )); then
+        io_error "docker_setup: unsupported operating system"
+    fi
 
     io_info "docker_setup: Installing docker"
     if (( HAVE_DEBIAN )); then

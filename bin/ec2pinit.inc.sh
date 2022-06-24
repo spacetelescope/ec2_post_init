@@ -36,8 +36,7 @@
 ## # ...
 ## @endcode
 ##
-## @section example_sec Full Example
-##
+## @page full_example_page Full example
 ## @include cumulative.sh
 ##
 ## @page license_page License
@@ -58,6 +57,11 @@ export ec2pinit_root
 ##
 ## Do not change this value
 ec2pinit_framework="$ec2pinit_root"/framework
+
+# Adjust the framework path when we're installed as a system package
+if [ ! -d "$ec2pinit_framework" ]; then
+    ec2pinit_framework="$ec2pinit_root/share/ec2_post_init"/framework
+fi
 export ec2pinit_framework
 
 ## @property ec2pinit_tempdir
@@ -109,6 +113,19 @@ fi
 mkdir -p "$ec2pinit_tempdir"
 source $ec2pinit_framework/io.inc.sh
 source $ec2pinit_framework/system.inc.sh
+
+# OS detection gate
+if (( ! HAVE_SUPPORT )); then
+    io_error "OPERATING SYSTEM IS NOT SUPPORTED"
+    io_error "Please open an issue at: https://github.com/spacetelescope/ec2_post_init"
+    false
+    return
+fi
+
 source $ec2pinit_framework/miniconda.inc.sh
 source $ec2pinit_framework/astroconda.inc.sh
 source $ec2pinit_framework/docker.inc.sh
+
+# Ensure any external success checks succeed
+true
+return

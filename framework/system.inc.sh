@@ -26,6 +26,12 @@ export HAVE_DEBIAN=0
 ## System is based on Ubuntu
 export HAVE_UBUNTU=0
 
+## System is based on Arch
+export HAVE_ARCH=0
+
+## System is supported
+export HAVE_SUPPORT=1
+
 ## @fn sys_user_push()
 ## @brief Lazily "become" another user
 ## @details This sidesteps sudo's environment limitations allowing
@@ -117,7 +123,7 @@ sys_reset_home_ownership() {
     fi
 
     home="$(getent passwd $user | awk -F: '{ print $6 }')"
-    if [ -z "$home" ]; then
+    if [ -z "$home" ] || (( $(wc -l <<< "$home") > 1 )) ; then
         io_error "sys_reset_home_ownership: reset failed"
         false
         return
@@ -151,8 +157,8 @@ sys_pkg_get_manager() {
 
 # Configure package manager globals
 sys_manager_cmd=$(sys_pkg_get_manager)
-case "$(basename $sys_manager_cmd)" in
-    dnf)
+case "$sys_manager_cmd" in
+    */dnf)
         HAVE_DNF=1
         HAVE_REDHAT=1
         sys_manager_cmd_install="dnf -y install"
@@ -160,7 +166,7 @@ case "$(basename $sys_manager_cmd)" in
         sys_manager_cmd_clean="dnf clean all"
         sys_manager_cmd_list="rpm -qa"
         ;;
-    yum)
+    */yum)
         HAVE_YUM=1
         HAVE_REDHAT=1
         sys_manager_cmd_install="yum -y install"
@@ -168,7 +174,7 @@ case "$(basename $sys_manager_cmd)" in
         sys_manager_cmd_clean="yum clean all"
         sys_manager_cmd_list="rpm -qa"
         ;;
-    apt)
+    */apt)
         HAVE_APT=1
         HAVE_DEBIAN=1
         DEBIAN_FRONTEND=noninteractive
@@ -176,6 +182,10 @@ case "$(basename $sys_manager_cmd)" in
         sys_manager_cmd_update="apt update && apt -y upgrade"
         sys_manager_cmd_clean="apt -y autoremove && apt -y clean"
         sys_manager_cmd_list="apt -qq list"
+        ;;
+    *)
+        io_warn "Unable to determine the system package manager."
+        HAVE_SUPPORT=0
         ;;
 esac
 io_info "system: Detected package manager: $sys_manager_cmd"
@@ -204,6 +214,10 @@ io_info "system: is based on Debian? $(( HAVE_DEBIAN ))"
 
 ## @endcode
 sys_pkg_install() {
+    if (( ! HAVE_SUPPORT )); then
+        io_error "sys_pkg_install: unsupported package manager"
+        return
+    fi
     if (( "$#" < 1 )); then
         io_error "sys_pkg_install: at least one package name is required"
         false
@@ -217,6 +231,10 @@ sys_pkg_install() {
 ## @brief Update all system packages
 ## @retval exit_code of system package manager
 sys_pkg_update_all() {
+    if (( ! HAVE_SUPPORT )); then
+        io_error "sys_pkg_update_all: unsupported package manager"
+        return
+    fi
     io_info "sys_pkg_update_all: Updating system packages"
     sh -c "$sys_manager_cmd_update"
 }
@@ -229,6 +247,11 @@ sys_pkg_update_all() {
 sys_pkg_installed() {
     local output=''
     local name="$1"
+    if (( ! HAVE_SUPPORT )); then
+        io_error "sys_pkg_installed: unsupported package manager"
+        return
+    fi
+
     if (( "$#" < 1 )); then
         io_error "sys_pkg_installed: package name is required"
         false
@@ -242,7 +265,7 @@ sys_pkg_installed() {
             return
         fi
     elif (( $HAVE_APT )); then
-        if grep -E ''^$1.*\[installed\]$'' <<< "$output" &>/dev/null; then
+        if grep -E ''^$1/.*\\[installed\\]$'' <<< "$output" &>/dev/null; then
             true
             return
         fi
@@ -255,6 +278,10 @@ sys_pkg_installed() {
 ## @fn sys_pkg_clean()
 ## @brief Clean the system package manager's cache(s)
 sys_pkg_clean() {
+    if (( ! HAVE_SUPPORT )); then
+        io_error "sys_pkg_clean: unsupported package manager"
+        return
+    fi
     io_info "sys_pkg_clean: Clearing caches"
     sh -c "$sys_manager_cmd_clean"
 }
