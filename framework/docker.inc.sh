@@ -21,10 +21,11 @@ docker_setup() {
         io_error "docker_setup: unsupported operating system"
     fi
 
+    # TODO: Generalize the following init blocks
     io_info "docker_setup: Installing docker"
     if (( HAVE_DEBIAN )); then
         # see: https://docs.docker.com/engine/install/debian/ 
-        sys_pkg_install apt-transport-https ca-certificates curl gnupg lsb-release
+        sys_pkg_install apt-transport-https ca-certificates curl gnupg lsb-release sudo
         if [ ! -f "/etc/apt/keyrings/docker.gpg" ]; then
             sudo mkdir -p /etc/apt/keyrings
             curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -33,7 +34,18 @@ docker_setup() {
             echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
                 | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         fi
-        sys_pkg_clean
+        sys_pkg_install docker-ce docker-ce-cli containerd.io docker-compose
+    elif (( HAVE_UBUNTU )); then
+        # see: https://docs.docker.com/engine/install/ubuntu/
+        sys_pkg_install apt-transport-https ca-certificates curl gnupg lsb-release sudo
+        if [ ! -f "/etc/apt/keyrings/docker.gpg" ]; then
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        fi
+        if [ ! -f "/etc/apt/sources.list.d/docker.list" ]; then
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+                | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        fi
         sys_pkg_install docker-ce docker-ce-cli containerd.io docker-compose
     elif (( HAVE_REDHAT )); then
         # see: https://docs.docker.com/engine/install/centos/
