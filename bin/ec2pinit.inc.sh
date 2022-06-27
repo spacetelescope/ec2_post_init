@@ -14,13 +14,28 @@
 ##   - CentOS 7+
 ##   - Fedora 19+
 ## - Debian
+##   - Stretch+
+## - Ubuntu
+##   - Bionic+
 ##
-## @section install_sec Installation
+## @section install_sec Installing
+##
+## @subsection install_system_subsec System installation
 ##
 ## @code{.sh}
 ## git clone https://github.com/spacetelescope/ec2_post_init
 ## cd ec2_post_init
 ## sudo make install PREFIX=/usr/local
+## @endcode
+##
+## @subsection install_portable_subsec Portable installation
+##
+## If you don't want to install ec2_post_init permanently, you don't have to. This is especially useful for systems that provide ``curl`` and ``tar`` by default but lack ``git`` and ``make``. Here is how to use ec2_post_init from its source directory:
+##
+## @code{.sh}
+## curl https://github.com/spacetelescope/ec2_post_init/archive/refs/heads/main.tar.gz | tar -x
+## cd ec2_post_init
+## export PATH=$(pwd)/bin:$PATH
 ## @endcode
 ##
 ## @section usage_sec Using ec2_post_init
@@ -34,6 +49,59 @@
 ## source ec2pinit.inc.sh
 ##
 ## # ...
+## @endcode
+##
+## @section install_develop_sec Developing
+##
+## To write code for ec2_post_init you should have access to an EC2 instance, or a host with ``docker`` or ``vagrant`` installed.
+##
+## @code{.sh}
+## git clone https://github.com/spacetelescope/ec2_post_init
+## cd ec2_post_init
+## export PATH=$(pwd)/bin:$PATH
+## @endcode
+##
+## To test ec2_post_init using docker:
+##
+## @code{.sh}
+## docker run --rm -it -v $(pwd):/data -w /data centos:7 /bin/bash
+## [root@abc123 data]# export PATH=$PATH:/data/bin
+## [root@abc123 data]# cd tests
+## [root@abc123 tests]# ./run_tests.sh
+## @endcode
+##
+## To test ec2_post_init using vagrant (VirtualBox):
+##
+## @code{.sh}
+## mkdir -p ~/vagrant/centos/7
+## cd ~/vagrant/centos/7
+## @endcode
+##
+## Create a new ``Vagrantfile``. Be sure to change any paths to match your local system
+##
+## @code
+## Vagrant.configure("2") do |config|
+##   config.vm.box = "generic/centos7"
+##
+##   # Mount the ec2_post_init source directory at /data inside of the VM
+##   config.vm.synced_folder "/home/example/my_code/ec2_post_init", "/data"
+##
+##   # Change VM resources
+##   config.vm.provider "virtualbox" do |v|
+##     v.memory = 2048
+##     v.cpus = 2
+##   end
+## end
+## @endcode
+##
+## Provision the VM, log in, and execute the test suite:
+##
+## @code{.sh}
+## vagrant up
+## vagrant ssh sudo -i
+## [root@vagrant123 ~]# export PATH=$PATH:/data/bin
+## [root@vagrant123 data]# cd /data/tests
+## [root@vagrant123 tests]# ./run_tests.sh
 ## @endcode
 ##
 ## @page full_example_page Full example
@@ -110,16 +178,48 @@ if ! [[ "$ec2pinit_debug" =~ [0-9]+ ]]; then
     ec2pinit_debug=$DEBUG_DEFAULT
 fi
 
+bug_report() {
+    io_error "$*"
+    io_error "Please open an issue at: https://github.com/spacetelescope/ec2_post_init"
+    echo
+    echo TYPE
+    echo ====
+    ([ -f /.dockerenv ] && echo Docker) || echo 'Physical / Virtualized'
+    echo
+    echo KERNEL
+    echo ======
+    uname -a
+    echo
+    echo MEMORY
+    echo ======
+    command free -m
+    echo
+    echo CPU
+    echo ===
+    lscpu
+    echo
+    echo EC2_POST_INIT INFO
+    echo ==================
+    set | grep -E '^(ec2pinit|EC2PINIT|ec2_post_init|HAVE_|HOME|USER|PWD|sys_manager_)' | sort
+    echo
+    echo
+}
+
 mkdir -p "$ec2pinit_tempdir"
 source $ec2pinit_framework/io.inc.sh
 source $ec2pinit_framework/system.inc.sh
 
 # OS detection gate
 if (( ! HAVE_SUPPORT )); then
-    io_error "OPERATING SYSTEM IS NOT SUPPORTED"
-    io_error "Please open an issue at: https://github.com/spacetelescope/ec2_post_init"
+    bug_report "OPERATING SYSTEM IS NOT SUPPORTED"
     false
     return
+else
+    if ! sys_initialize; then
+        bug_report "UNABLE TO INITIALIZE BASE OPERATING SYSTEM PACKAGES"
+        false
+        return
+    fi
 fi
 
 source $ec2pinit_framework/miniconda.inc.sh
