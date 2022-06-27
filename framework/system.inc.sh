@@ -32,11 +32,24 @@ export HAVE_ARCH=0
 ## System is supported
 export HAVE_SUPPORT=1
 
+## @fn sys_check_admin()
+## @brief Determine if the current user is root
+## @retval true if root
+## @retval false if not root
+sys_check_admin() {
+    if (( $EUID > 0 )); then
+        false
+        return
+    fi
+    true
+    return
+}
+
 ## @fn sys_user_push()
 ## @brief Lazily "become" another user
 ## @details This sidesteps sudo's environment limitations allowing
 ## one to execute scripts on behalf of the named user. Anything modified
-## while sys_user_push() is active will need to have its ownership and/or
+## while ``sys_user_push()`` is active will need to have its ownership and/or
 ## octal permissions normalized. If ``name`` does not exist it will be created.
 ## @param name the user to become
 sys_user_push() {
@@ -54,7 +67,7 @@ sys_user_push() {
 }
 
 ## @fn sys_user_pop()
-## @brief Restore caller environment after sys_user_push()
+## @brief Restore caller environment after ``sys_user_push()``
 sys_user_pop() {
     HOME="$_sys_user_home_old"
     export USER="$_sys_user_old"
@@ -176,7 +189,6 @@ case "$sys_manager_cmd" in
         ;;
     */apt)
         HAVE_APT=1
-        HAVE_DEBIAN=1
         DEBIAN_FRONTEND=noninteractive
         sys_manager_cmd_install="apt update && apt -y install"
         sys_manager_cmd_update="apt update && apt -y upgrade"
@@ -184,13 +196,33 @@ case "$sys_manager_cmd" in
         sys_manager_cmd_list="apt -qq list"
         ;;
     *)
-        io_warn "Unable to determine the system package manager."
         HAVE_SUPPORT=0
         ;;
 esac
-io_info "system: Detected package manager: $sys_manager_cmd"
-io_info "system: is based on Red Hat? $(( HAVE_REDHAT ))"
-io_info "system: is based on Debian? $(( HAVE_DEBIAN ))"
+
+# Distro detection
+if (( HAVE_YUM )) || (( HAVE_DNF )); then
+    if [ -f "/etc/redhat-release" ]; then
+        HAVE_REDHAT=1
+    fi
+elif (( HAVE_APT )); then
+    if [ -L "/etc/dpkg/origins/default" ]; then
+        if [ "$(basename $(readlink -f /etc/dpkg/origins/default))" == "debian" ]; then
+            HAVE_DEBIAN=1
+        elif [ "$(basename $(readlink -f /etc/dpkg/origins/default))" == "ubuntu" ]; then
+            HAVE_UBUNTU=1
+        fi
+    fi
+else
+    HAVE_SUPPORT=0
+fi
+
+if (( HAVE_SUPPORT )); then
+    io_info "system: Detected package manager: $sys_manager_cmd"
+    io_info "system: is based on Red Hat? $(( HAVE_REDHAT ))"
+    io_info "system: is based on Debian? $(( HAVE_DEBIAN ))"
+    io_info "system: is based on Ubuntu? $(( HAVE_UBUNTU ))"
+fi
 
 ## @fn sys_pkg_install()
 ## @brief Install a system package
@@ -211,7 +243,6 @@ io_info "system: is based on Debian? $(( HAVE_DEBIAN ))"
 ## (( $HAVE_REDHAT )) && deps+=(vim)
 ## (( $HAVE_DEBIAN )) && deps+=(vim-common)
 ## sys_pkg_install "${deps[@]}"
-
 ## @endcode
 sys_pkg_install() {
     if (( ! HAVE_SUPPORT )); then
@@ -223,8 +254,8 @@ sys_pkg_install() {
         false
         return
     fi
-    io_info "sys_pkg_install: Installing $@"
-    sh -c "$sys_manager_cmd_install $@"
+    io_info "sys_pkg_install: Installing $*"
+    bash -c "$sys_manager_cmd_install $*"
 }
 
 ## @fn sys_pkg_update_all()
@@ -236,7 +267,7 @@ sys_pkg_update_all() {
         return
     fi
     io_info "sys_pkg_update_all: Updating system packages"
-    sh -c "$sys_manager_cmd_update"
+    bash -c "$sys_manager_cmd_update"
 }
 
 ## @fn sys_pkg_installed()
@@ -283,5 +314,58 @@ sys_pkg_clean() {
         return
     fi
     io_info "sys_pkg_clean: Clearing caches"
-    sh -c "$sys_manager_cmd_clean"
+    bash -c "$sys_manager_cmd_clean"
+}
+
+## @fn sys_initialize()
+## @brief Install dependencies required by ``ec2_post_init``
+## @retval exit_code value of ``sys_pkg_install()``
+##
+## @code{.sh}
+## if ! sys_pkg_initialize; then
+##     io_error "Initialization failed!"
+## else
+##     io_info "Initialization succeeded!"
+## fi
+## @endcode
+sys_initialize() {
+    local want=(
+        bash
+        git
+        curl
+        gcc
+        make
+    )
+    local need=()
+
+    # Handle barren Debian images
+    (( HAVE_DEBIAN )) && want+=(procps build-essential)
+
+    # NOTE: Aside from the sys_* functions most operations in ec2_post_init
+    # don't strictly require root access.
+    io_info "sys_initialize: Administrator check..."
+    if ! sys_check_admin; then
+        io_warn "sys_initialize: SYSTEM FUNCTIONS REQUIRE ROOT ACCESS!"
+        io_warn "sys_initialize: Beyond this point errors thrown by sys_* functions are NOT bugs!"
+        return
+    else
+        io_info "sys_initialize: User is root!"
+    fi
+
+    io_info "sys_initialize: Checking system requirements..."
+    for x in "${want[@]}"; do
+        if ! sys_pkg_installed "$x"; then
+            io_info "sys_initialize: $x marked for installation"
+            need+=($x)
+        fi
+    done
+    if (( ! ${#need[@]} )); then
+        io_info "sys_initialize: No additional packages required"
+        true
+        return
+    fi
+
+    io_info "sys_initialize: Installing packages required by ec2_post_init..."
+    sys_pkg_install ${need[@]}
+    return $?
 }
