@@ -51,6 +51,8 @@
 ## # ...
 ## @endcode
 ##
+## To see how one can use ec2_post_init to populate a system with Miniconda3 and the three major STScI pipeline releases, please refer to the @ref full_example_page page. The API reference for each library module can be found <a href="files.html">here</a>.
+##
 ## @section install_develop_sec Developing
 ##
 ## To write code for ec2_post_init you should have access to an EC2 instance, or a host with ``docker`` or ``vagrant`` installed.
