@@ -32,7 +32,7 @@ _get_rc() {
     local scripts=(.bash_profile .bashrc .profile)
     local home="$(sys_user_home ${1:-$USER})"
     if [ -z "$home" ] || [ ! -d "$home" ]; then
-	false
+        false
         return
     fi
 
@@ -59,13 +59,19 @@ mc_get() {
     local name="Miniconda3-$version-$platform-$arch.sh"
 
     if [ -f "$dest/$mc_installer" ]; then
-	io_warn "mc_get: $dest/$mc_installer exists"
+        io_warn "mc_get: $dest/$mc_installer exists"
         false
         return
     fi
     io_info "mc_get: Downloading $mc_url/$name"
     io_info "mc_get: Destination: $dest/$mc_installer"
+
     curl -L -o "$dest/$mc_installer" "$mc_url/$name"
+    # Is this a bug or what?
+    # curl exits zero on success but causes "if mc_get" to fail
+    # as if it existed non-zero. I'm forcing the conditions I need
+    # below.
+    (( $? != 0 )) && return 1
 }
 
 
@@ -74,7 +80,7 @@ mc_get() {
 mc_configure_defaults() {
     if [ -z "$CONDA_EXE" ]; then
         # Not initialized correctly
-	io_error "mc_configure_defaults: conda is not initialized"
+        io_error "mc_configure_defaults: conda is not initialized"
         false
         return
     fi
@@ -88,9 +94,9 @@ mc_configure_defaults() {
     io_info "mc_configure_defaults: Enabling verbose output from pip"
     if ! grep -E '[^#](export)?[\t\ ]+PIP_VERBOSE=' "$rc" &>/dev/null; then
         echo export PIP_VERBOSE=1 >> "$rc"
-	io_info "mc_configure_defaults: $rc modified"
+        io_info "mc_configure_defaults: $rc modified"
     else
-	io_info "mc_configure_defaults: $rc not modified"
+        io_info "mc_configure_defaults: $rc not modified"
     fi
 }
 
@@ -160,7 +166,7 @@ mc_install() {
 mc_clean() {
     if [ -z "$CONDA_EXE" ]; then
         # Not initialized correctly
-	io_error "mc_clean: conda is not initialized"
+        io_error "mc_clean: conda is not initialized"
         false
         return
     fi
