@@ -29,7 +29,7 @@ mc_installer="miniconda3_install.sh"
 ## @endcode
 ## @retval false if ``home`` does not exist
 _get_rc() {
-    local scripts=(.bash_profile .bashrc .profile)
+    local scripts=(.bashrc .bashrc_profile .profile)
     local home="$(sys_user_home ${1:-$USER})"
     if [ -z "$home" ] || [ ! -d "$home" ]; then
         false
@@ -116,7 +116,16 @@ mc_initialize() {
     fi
 
     io_info "mc_initialize: Using conda: $dest"
-    source "$dest"/etc/profile.d/conda.sh ; conda init
+
+    # Configure the user's shell
+    if (( ! $EUID )); then
+        if ! grep -E '#.*>>>.*conda initialize.*>>>$' $(_get_rc) &>/dev/null; then
+            sudo -u $USER dest=$dest -i bash -c 'source "$dest"/etc/profile.d/conda.sh ; conda init'
+        fi
+    fi
+
+    # Give current context access to the miniconda installation
+    source "$dest"/etc/profile.d/conda.sh
     mc_configure_defaults
 }
 

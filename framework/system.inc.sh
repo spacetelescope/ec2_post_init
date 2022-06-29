@@ -335,6 +335,7 @@ sys_initialize() {
         curl
         gcc
         make
+        sudo
     )
     local need=()
 
