@@ -110,13 +110,12 @@ ac_releases_data_analysis() {
 ## @brief Generate conda environment name
 ## @param series Pipeline release name
 ## @retval environment_name if series exists
-## @retval false if release cannot be found
+## @retval 1 if release cannot be found
 ac_releases_data_analysis_environ() {
     local series="$1"
     local filename=$(ac_releases_data_analysis "$series")
     if [ -z "$filename" ]; then
-        false
-        return
+        return 1
     fi
     sed "s/-/_/g;s/_$(ac_platform).*//g" <<< $(basename $filename)
 }
@@ -151,7 +150,7 @@ ac_releases_jwst() {
 ## @brief Generate conda environment name
 ## @param series Pipeline release name
 ## @retval environment_name if series exists
-## @retval false if release cannot be found
+## @retval 1 if release cannot be found
 ac_releases_jwst_environ() {
     local series="$1"
     local pipeline="jwstdp"
@@ -203,13 +202,12 @@ ac_releases_hst() {
 ## @brief Generate conda environment name
 ## @param series Pipeline release name
 ## @retval environment_name if series exists
-## @retval false if release cannot be found
+## @retval 1 if release cannot be found
 ac_releases_hst_environ() {
     local series="$1"
     local filename=$(ac_releases_hst "$series")
     if [ -z "$filename" ]; then
-        false
-        return
+        return 1
     fi
     sed "s/_$(ac_platform).*//" <<< $(basename $filename)
 }
@@ -222,8 +220,7 @@ ac_releases_install_hst() {
     local version="$1"
     if [ -z "$version" ]; then
         io_error "ac_releases_install_hst: release version required"
-        false
-        return
+        return 1
     fi
     local release_file=$(ac_releases_hst $version)
     local release_name=$(ac_releases_hst_environ $version)
@@ -239,8 +236,7 @@ ac_releases_install_jwst() {
     local version="$1"
     if [ -z "$version" ]; then
         io_error "ac_releases_install_jwst: release version required" >&2
-        false
-        return
+        return 1
     fi
     release_file=($(ac_releases_jwst $version_jwst))
     release_name=$(ac_releases_jwst_environ $version_jwst)
@@ -261,8 +257,7 @@ ac_releases_install_data_analysis() {
     local version="$1"
     if [ -z "$version" ]; then
         io_error "ac_releases_install_data_analysis: release version required"
-        false
-        return
+        return 1
     fi
     local release_file=$(ac_releases_data_analysis $version)
     local release_name=$(ac_releases_data_analysis_environ $version)

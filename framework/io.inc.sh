@@ -27,7 +27,7 @@ io_timestamp() {
 ## # 2022-06-22 18:46:57 - INFO: hello
 ## @endcode
 io_info() {
-    (( ec2pinit_debug & DEBUG_INFO )) || return
+    (( ec2pinit_debug & DEBUG_INFO )) || return 0
     printf "$(io_timestamp) - INFO: %s\n" "$@" >&2
 }
 
@@ -42,7 +42,7 @@ io_info() {
 ## # 2022-06-22 18:46:57 - WARN: uh oh... hello
 ## @endcode
 io_warn() {
-    (( ec2pinit_debug & DEBUG_WARN )) || return
+    (( ec2pinit_debug & DEBUG_WARN )) || return 0
     printf "$(io_timestamp) - WARN: %s\n" "$@" >&2
 }
 
@@ -57,6 +57,6 @@ io_warn() {
 ## # 2022-06-22 18:46:57 - ERROR: oh no... hello
 ## @endcode
 io_error() {
-    (( ec2pinit_debug & DEBUG_ERROR )) || return
+    (( ec2pinit_debug & DEBUG_ERROR )) || return 0
     printf "$(io_timestamp) - ERROR: %s\n" "$@" >&2
 }

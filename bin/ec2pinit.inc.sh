@@ -214,13 +214,11 @@ source $ec2pinit_framework/system.inc.sh
 # OS detection gate
 if (( ! HAVE_SUPPORT )); then
     bug_report "OPERATING SYSTEM IS NOT SUPPORTED"
-    false
-    return
+    return 1
 else
     if ! sys_initialize; then
         bug_report "UNABLE TO INITIALIZE BASE OPERATING SYSTEM PACKAGES"
-        false
-        return
+        return 1
     fi
 fi
 

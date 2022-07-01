@@ -35,14 +35,12 @@ export HAVE_SUPPORT=1
 ## @fn sys_check_admin()
 ## @brief Determine if the current user is root
 ## @retval true if root
-## @retval false if not root
+## @retval 1 if not root
 sys_check_admin() {
     if (( $EUID > 0 )); then
-        false
-        return
+        return 1
     fi
-    true
-    return
+    return 0
 }
 
 ## @fn sys_user_push()
@@ -131,15 +129,13 @@ sys_reset_home_ownership() {
 
     if [ -z "$user" ]; then
         io_error "sys_reset_home_ownership: user name required"
-        false
-        return
+        return 1
     fi
 
     home="$(getent passwd $user | awk -F: '{ print $6 }')"
     if [ -z "$home" ] || (( $(wc -l <<< "$home") > 1 )) ; then
         io_error "sys_reset_home_ownership: reset failed"
-        false
-        return
+        return 1
     fi
 
     io_info "sys_reset_home_ownership: ${home} will be owned by ${user}"
@@ -227,6 +223,7 @@ fi
 ## @fn sys_pkg_install()
 ## @brief Install a system package
 ## @param ... a variable length list of packages to install
+## @retval 1 if not supported
 ## @retval exit_code of system package manager
 ##
 ## @code{.sh}
@@ -247,12 +244,11 @@ fi
 sys_pkg_install() {
     if (( ! HAVE_SUPPORT )); then
         io_error "sys_pkg_install: unsupported package manager"
-        return
+        return 1
     fi
     if (( "$#" < 1 )); then
         io_error "sys_pkg_install: at least one package name is required"
-        false
-        return
+        return 1
     fi
     io_info "sys_pkg_install: Installing $*"
     bash -c "$sys_manager_cmd_install $*"
@@ -260,11 +256,12 @@ sys_pkg_install() {
 
 ## @fn sys_pkg_update_all()
 ## @brief Update all system packages
+## @retval 1 if not supported
 ## @retval exit_code of system package manager
 sys_pkg_update_all() {
     if (( ! HAVE_SUPPORT )); then
         io_error "sys_pkg_update_all: unsupported package manager"
-        return
+        return 1
     fi
     io_info "sys_pkg_update_all: Updating system packages"
     bash -c "$sys_manager_cmd_update"
@@ -273,37 +270,34 @@ sys_pkg_update_all() {
 ## @fn sys_pkg_installed()
 ## @brief Test if a system package is installed
 ## @param name of a system package
-## @retval false if package is NOT installed
-## @retval true if package is installed
+## @retval 1 if not supported
+## @retval 1 if package is NOT installed
+## @retval 0 if package is installed
 sys_pkg_installed() {
     local output=''
     local name="$1"
     if (( ! HAVE_SUPPORT )); then
         io_error "sys_pkg_installed: unsupported package manager"
-        return
+        return 1
     fi
 
     if (( "$#" < 1 )); then
         io_error "sys_pkg_installed: package name is required"
-        false
-        return
+        return 1
     fi
 
     output="$($sys_manager_cmd_list $name | tail -n 1)"
     if (( $HAVE_YUM )) || (( $HAVE_DNF )); then
         if grep -E ''^$1\..*'' <<< "$output" &>/dev/null; then
-            true
-            return
+            return 0
         fi
     elif (( $HAVE_APT )); then
         if grep -E ''^$1/.*\\[installed\\]$'' <<< "$output" &>/dev/null; then
-            true
-            return
+            return 0
         fi
     fi
 
-    false
-    return
+    return 1
 }
 
 ## @fn sys_pkg_clean()
@@ -362,8 +356,7 @@ sys_initialize() {
     done
     if (( ! ${#need[@]} )); then
         io_info "sys_initialize: No additional packages required"
-        true
-        return
+        return 0
     fi
 
     io_info "sys_initialize: Installing packages required by ec2_post_init..."

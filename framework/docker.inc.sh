@@ -113,8 +113,7 @@ docker_pull_many() {
     local error_count=0
     
     if [ -z "$image_count" ]; then
-        false
-        return
+        return 1
     fi
 
     io_info "Pulling $image_count image(s)..."
@@ -124,6 +123,5 @@ docker_pull_many() {
             (( error_count++ ))
         fi
     done
-    (( error_count )) && false
-    return
+    (( error_count )) && return 1
 }

@@ -27,13 +27,12 @@ mc_installer="miniconda3_install.sh"
 ## rc=$(_get_rc)
 ## # rc=/home/example/.bashrc
 ## @endcode
-## @retval false if ``home`` does not exist
+## @retval 1 if ``home`` does not exist
 _get_rc() {
     local scripts=(.bashrc .bashrc_profile .profile)
     local home="$(sys_user_home ${1:-$USER})"
     if [ -z "$home" ] || [ ! -d "$home" ]; then
-        false
-        return
+        return 1
     fi
 
     for x in "${scripts[@]}"; do
@@ -50,9 +49,10 @@ _get_rc() {
 ## @details Installation script destination is set by global $mc_installer
 ## @param version Miniconda3 release version...
 ##   (i.e., py39_4.11.0)
+## @param version "latest" if empty
 ## @see config.sh
 mc_get() {
-    local version="$1"
+    local version="${1:-latest}"
     local dest="$ec2pinit_tempdir"
     local platform="$(sys_platform)"
     local arch="$(sys_arch)"
@@ -60,8 +60,7 @@ mc_get() {
 
     if [ -f "$dest/$mc_installer" ]; then
         io_warn "mc_get: $dest/$mc_installer exists"
-        false
-        return
+        return 1
     fi
     io_info "mc_get: Downloading $mc_url/$name"
     io_info "mc_get: Destination: $dest/$mc_installer"
@@ -69,9 +68,10 @@ mc_get() {
     curl -L -o "$dest/$mc_installer" "$mc_url/$name"
     # Is this a bug or what?
     # curl exits zero on success but causes "if mc_get" to fail
-    # as if it existed non-zero. I'm forcing the conditions I need
+    # as if it exited non-zero. I'm forcing the conditions I need
     # below.
     (( $? != 0 )) && return 1
+    return 0
 }
 
 
@@ -81,8 +81,7 @@ mc_configure_defaults() {
     if [ -z "$CONDA_EXE" ]; then
         # Not initialized correctly
         io_error "mc_configure_defaults: conda is not initialized"
-        false
-        return
+        return 1
     fi
     io_info "mc_configure_defaults: Configuring conda options"
     conda config --system --set auto_update_conda false
@@ -134,10 +133,10 @@ mc_initialize() {
 ## @brief Installs Miniconda3
 ## @param version of the Miniconda3 installer (i.e., py39_4.11.0)
 ## @param dest path to install Miniconda3 (~/miniconda3)
-## @retval false if any argument is invalid
-## @retval false if destination exists
-## @retval false if download fails
-## @retval false if installation fails (implicit)
+## @retval 1 if any argument is invalid
+## @retval 1 if destination exists
+## @retval 1 if download fails
+## @retval 1 if installation fails (implicit)
 mc_install() {
     local version="$1"
     local dest="$2"
@@ -145,23 +144,20 @@ mc_install() {
     
     if [ -z "$version" ]; then
         io_error "mc_install: miniconda version required" >&2
-        return false
+        return 1
     fi
 
     if [ -z "$dest" ]; then
         io_error "mc_install: miniconda destination directory required" >&2
-        false
-        return
+        return 1
     elif [ -d "$dest" ]; then
         io_error "mc_install: miniconda destination directory exists" >&2
-        false
-        return
+        return 1
     fi
 
     if mc_get "$version"; then
         io_error "mc_install: unable to obtain miniconda from server" >&2
-        false
-        return
+        return 1
     fi
 
     io_info "mc_install: Installing conda: $dest"
@@ -171,13 +167,12 @@ mc_install() {
 
 ## @fn mc_clean()
 ## @brief Remove unused tarballs, caches, indexes, etc
-## @retval false if miniconda is not initialized
+## @retval 1 if miniconda is not initialized
 mc_clean() {
     if [ -z "$CONDA_EXE" ]; then
         # Not initialized correctly
         io_error "mc_clean: conda is not initialized"
-        false
-        return
+        return 1
     fi
 
     conda clean --all
