@@ -1,6 +1,7 @@
 oneTimeSetUp() {
     source ec2pinit.inc.sh
     mkdir -p "$ec2pinit_tempdir"/home
+    export USER=$(id -n -u)
     export HOME_ORIG="$HOME"
     export HOME="$ec2pinit_tempdir"/home/tester
     cp -a /etc/skel $HOME || mkdir -p $HOME
