@@ -6,7 +6,15 @@
 ## @mainpage
 ## @section intro_sec Introduction
 ##
-## This library is useful if you are not a systems administrator by trade yet been handed the daunting task of provisioning EC2 images to do data analysis or research. ec2_post_init provides a clean, easy to use API to install STScI software pipelines and system software.
+## This shell library is useful if you are not a systems administrator but want to spin up an EC2 image to do data analysis or research. ec2_post_init provides a simple easy to use API that can:
+##
+## - Install system software (see: ``system.inc.sh :: sys_pkg_install()``)
+## - Install Docker (see: ``docker.inc.sh :: docker_setup()``)
+## - Install Miniconda3 (see: ``miniconda.inc.sh :: mc_install()``)
+## - Install STScI pipelines (see: ``astroconda.inc.sh``)
+##   - ``ac_releases_install_hst()``
+##   - ``ac_releases_install_jwst()``
+##   - ``ac_releases_install_data_analysis()``
 ## 
 ## @section require_sec Supported Operating Systems
 ##
